@@ -1,0 +1,72 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: phonebook1-service
+  labels:
+    name: web
+    app: phonebook1
+spec:
+  ports:
+    - name: http
+      port: 80
+      targetPort: 80
+      protocol: TCP
+  selector:
+    name: web
+  type: NodePort
+---
+# apiVersion: v1
+# kind: PersistentVolumeClaim
+# metadata:
+#   name: phonebook1-pv-claim
+#   labels:
+#     app: phonebook1
+# spec:
+#   storageClassName: manual
+#   accessModes:
+#     - ReadWriteOnce
+#   resources:
+#     requests:
+#       storage: 1Gi
+# ---
+apiVersion: apps/v1 # for versions before 1.9.0 use apps/v1beta2
+kind: Deployment
+metadata:
+  name: web-deploy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: web
+  # strategy:
+  #   type: Recreate
+  template:
+    metadata:
+      labels:
+        name: web
+        app: phonebook1
+    spec:
+      containers:
+      - image: yurttav/phonebook_search:latest
+        name: myphonebook1
+        env:
+        - name: MYSQL_DATABASE_HOST
+          value: db-service
+        - name: MYSQL_DATABASE
+          value: phonebook_db
+        - name: MYSQL_USER
+          value: admin
+        - name: MYSQL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mysql-pass
+              key: password
+        ports:
+        - containerPort: 80
+      #   volumeMounts:
+      #   - name: phonebook1-persistent-storage
+      #     mountPath: /var/lib/phonebook
+      # volumes:
+      # - name: phonebook1-persistent-storage
+      #   persistentVolumeClaim:
+      #     claimName: phonebook1-pv-claim

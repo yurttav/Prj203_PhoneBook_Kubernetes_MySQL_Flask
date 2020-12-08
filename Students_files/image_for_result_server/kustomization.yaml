@@ -1,0 +1,8 @@
+secretGenerator:
+- name: mysql-pass
+  literals:
+  - password='P123456p'
+resources:
+  - pv.yaml
+  - 203mysql.yaml
+  - 203app1.yaml
